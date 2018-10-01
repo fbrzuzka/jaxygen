@@ -379,7 +379,7 @@ public class PropertiesToBeanConverter implements RequestConverter {
                     Object array = reader.invoke(bean);
                     if (pd.getPropertyType().isAssignableFrom(ArrayList.class) || pd.getPropertyType().isAssignableFrom(LinkedList.class) || (List.class).isAssignableFrom(pd.getPropertyType())) { // List
                         if (array == null) {
-                            Class childType = pd.getPropertyType().getComponentType();
+                            Class childType = pd.getPropertyType();
                             array = childType.newInstance();
                             writter.invoke(bean, array);
                         }
@@ -422,20 +422,20 @@ public class PropertiesToBeanConverter implements RequestConverter {
                             Object valueObject = fillBeanValueByName(childName, value, array.getClass().getComponentType(), Array.get(array, index));
                             Array.set(array, index, valueObject);
                         }
-                    } else if (pd.getPropertyType().equals(List.class)) {
-                        if (array == null) {
-                            array = pd.getPropertyType().newInstance();
-                            writter.invoke(bean, array);
-                        }
-                        Class<?> genericClass = array.getClass().getTypeParameters()[0].getClass();
-                        if (path.length == 1) {
-                            Object valueObject = parsePropertyToValue(value, genericClass);
-                            Array.set(array, index, valueObject);
-                        } else {
-                            Object valueObject = fillBeanValueByName(childName, value,
-                                    genericClass, null);
-                            Array.set(array, index, valueObject);
-                        }
+//                    } else if (pd.getPropertyType().equals(List.class)) {
+//                        if (array == null) {
+//                            array = pd.getPropertyType().newInstance();
+//                            writter.invoke(bean, array);
+//                        }
+//                        Class<?> genericClass = array.getClass().getTypeParameters()[0].getClass();
+//                        if (path.length == 1) {
+//                            Object valueObject = parsePropertyToValue(value, genericClass);
+//                            Array.set(array, index, valueObject);
+//                        } else {
+//                            Object valueObject = fillBeanValueByName(childName, value,
+//                                    genericClass, null);
+//                            Array.set(array, index, valueObject);
+//                        }
                     }
                 }
             }
