@@ -21,9 +21,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.jaxygen.annotations.HasImplementation;
@@ -250,7 +249,7 @@ public class MethodInvokerPagePropertyRenderer {
             if (request.getParameter(counterName) != null) {
                 multiplicity = Integer.parseInt(request.getParameter(counterName));
             }
-            if ((HashMap.class.isAssignableFrom(paramType)) || paramType.isAssignableFrom(HashMap.class)) {
+            if (Map.class.isAssignableFrom(paramType)) {
                 Class<?>[] componentsTypes = ClassTypeUtil.retrieveMapTypes(paramClass, propertyName);
                 if (multiplicity == 0) {
                     HTMLTable.Row row = addLabeledRow(field, table);
@@ -264,7 +263,7 @@ public class MethodInvokerPagePropertyRenderer {
                     }
                 }
 
-            } else if (paramType.isAssignableFrom(ArrayList.class) || paramType.isAssignableFrom(LinkedList.class) || (List.class).isAssignableFrom(paramType)) {
+            } else if (List.class.isAssignableFrom(paramType)) {
                 Class<?> componentType = ClassTypeUtil.retrieveListType(paramClass, propertyName);
                 if (multiplicity == 0) {
                     HTMLTable.Row row = addLabeledRow(field, table);
