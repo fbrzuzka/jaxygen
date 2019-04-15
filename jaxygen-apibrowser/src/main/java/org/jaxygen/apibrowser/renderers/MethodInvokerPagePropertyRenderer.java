@@ -18,6 +18,7 @@ package org.jaxygen.apibrowser.renderers;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -198,7 +199,20 @@ public class MethodInvokerPagePropertyRenderer {
         return row;
     }
 
-    private Method provideGetter(Class<?> clazz, String fieldName) throws NoSuchMethodException {
+    private Object provideDefaultValue(Class<?> clazz, Field field, Object inputObject) {
+        Object defaultValue = "";
+        Method getter = provideGetter(clazz, field.getName());
+        if (getter != null) {
+            try {
+                defaultValue = getter.invoke(inputObject);
+            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                throw new APIBrowserException("Cannot render page, Cannot provide default value for field \"" + field.getName() + "\" in class: \"" + clazz.getCanonicalName() + "\"", ex);
+            }
+        }
+        return defaultValue;
+    }
+
+    private Method provideGetter(Class<?> clazz, String fieldName) {
         try {
             return clazz.getMethod("get" + capitalise(fieldName));
         } catch (NoSuchMethodException ex) {
@@ -211,8 +225,7 @@ public class MethodInvokerPagePropertyRenderer {
         }
         String get = "get" + capitalise(fieldName);
         String is = "is" + capitalise(fieldName);
-        throw new APIBrowserException("Cannot render page, there is no getter for field: \"" + fieldName + "\". We looked for \"" + get + "\" and for \"" + is + "\"");
-
+        throw new APIBrowserException("Cannot render page, there is no getter for field: \"" + fieldName + "\" in class: \"" + clazz.getCanonicalName() + "\"" + "\". We looked for \"" + get + "\" and for \"" + is + "\"");
     }
 
     /**
@@ -234,18 +247,15 @@ public class MethodInvokerPagePropertyRenderer {
         Object inputObject = ClassInstanceCreator.createObject(paramClass).getObject();
 
         List<Field> filteredFields = ClassTypeUtil.getFields(paramClass).stream()
-                .filter(m -> !m.isAnnotationPresent(HiddenField.class))
+                .filter(field -> !field.isAnnotationPresent(HiddenField.class))
+                .filter(field -> !Modifier.isStatic(field.getModifiers()))
                 .collect(Collectors.toList());
         Collections.sort(filteredFields, new FieldNameComparator());
 
         for (Field field : filteredFields) {
             final String propertyName = field.getName();
             Class<?> paramType = field.getType();
-            Method getter = provideGetter(paramClass, propertyName);
-            Object defaultValue = "";
-            if (getter != null) {
-                defaultValue = getter.invoke(inputObject);
-            }
+            Object defaultValue = provideDefaultValue(paramClass, field, inputObject);
             final String counterName = parentFieldName + propertyName + "Size";
             int multiplicity = 0;
             if (request.getParameter(counterName) != null) {
