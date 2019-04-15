@@ -160,8 +160,10 @@ public class MethodInvokerPagePropertyRenderer {
                     final Class<?> returnType = getter.getReturnType();
                     if (ClassTypeUtil.isSimpleResultType(returnType)) {
                         gettersTale.addRow().addColumns(new HTMLLabel(getter.getName()), new HTMLLabel(returnType.getSimpleName()));
-                    } else if (ClassTypeUtil.isBoolType(returnType)) {
-                        gettersTale.addRow().addColumns(new HTMLLabel(getter.getName()), new HTMLLabel(returnType.getSimpleName()), enumBoolValues());
+                    } else if (ClassTypeUtil.isBoolClassType(returnType)) {
+                        gettersTale.addRow().addColumns(new HTMLLabel(getter.getName()), new HTMLLabel(returnType.getSimpleName()), enumBoolClassValues());
+                    } else if (ClassTypeUtil.isBoolPrimitiveType(returnType)) {
+                        gettersTale.addRow().addColumns(new HTMLLabel(getter.getName()), new HTMLLabel(returnType.getSimpleName()), enumBoolPrimitiveValues());
                     } else if (ClassTypeUtil.isEnumType(returnType)) {
                         gettersTale.addRow().addColumns(new HTMLLabel(getter.getName()), new HTMLLabel(returnType.getSimpleName()), enumValues(returnType));
                     } else if (ClassTypeUtil.isArrayType(paramClass)) {
@@ -359,7 +361,13 @@ public class MethodInvokerPagePropertyRenderer {
             Object defaultValue, final Class<?> paramType, final String propertyName)
             throws InstantiationException, IllegalAccessException,
             InvocationTargetException, NoSuchMethodException, NoSuchFieldException {
-        if (ClassTypeUtil.isBoolType(paramType)) {
+        if (ClassTypeUtil.isBoolClassType(paramType)) {
+            HTMLSelect select = new HTMLSelect(propertyName);
+            select.addOption(new HTMLOption("Null", new HTMLLabel("NULL")));
+            select.addOption(new HTMLOption("TRUE", new HTMLLabel("TRUE")));
+            select.addOption(new HTMLOption("FALSE", new HTMLLabel("FALSE")));
+            row.addColumn(select);
+        } else if (ClassTypeUtil.isBoolPrimitiveType(paramType)) {
             HTMLSelect select = new HTMLSelect(propertyName);
             select.addOption(new HTMLOption("TRUE", new HTMLLabel("TRUE")));
             select.addOption(new HTMLOption("FALSE", new HTMLLabel("FALSE")));
@@ -420,6 +428,7 @@ public class MethodInvokerPagePropertyRenderer {
 
     private void renderSelectHTML(HttpServletRequest request, final String propertyName, HTMLTable.Row row, Object[] values) {
         HTMLSelect select = new HTMLSelect(propertyName);
+        select.addOption(new HTMLOption("NULL", new HTMLLabel("NULL")));
         String parameterName = propertyName + "_Value";
         Object value = request.getParameter(parameterName);
         for (Object obj : values) {
@@ -488,20 +497,31 @@ public class MethodInvokerPagePropertyRenderer {
         HTMLTable table = new HTMLTable();
         HTMLTable.Row row = table.addRow();
         row.addColumn(new HTMLLabel("ENUMS:"));
+        row.addColumn(new HTMLLabel("NULL"));
         for (Object o : enumeration.getEnumConstants()) {
             row.addColumn(new HTMLLabel(o.toString()));
         }
         return table;
     }
 
-    private static HTMLElement enumBoolValues() {
+    private static HTMLElement enumBoolClassValues() {
+        HTMLTable table = new HTMLTable();
+        HTMLTable.Row row = table.addRow();
+        row.addColumn(new HTMLLabel("Boolean:"));
+
+        row.addColumn(new HTMLLabel("NULL"));
+        row.addColumn(new HTMLLabel("TRUE"));
+        row.addColumn(new HTMLLabel("FALSE"));
+        return table;
+    }
+
+    private static HTMLElement enumBoolPrimitiveValues() {
         HTMLTable table = new HTMLTable();
         HTMLTable.Row row = table.addRow();
         row.addColumn(new HTMLLabel("Boolean:"));
 
         row.addColumn(new HTMLLabel("TRUE"));
         row.addColumn(new HTMLLabel("FALSE"));
-
         return table;
     }
 

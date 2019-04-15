@@ -94,9 +94,12 @@ public class ClassTypeUtil {
     public static boolean isEnumType(Class clazz) {
         return clazz.isEnum();
     }
-
-    public static boolean isBoolType(Class clazz) {
-        return Boolean.class.equals(clazz) || (clazz != null && clazz.isPrimitive() && "boolean".equals(clazz.getName()));
+    
+    public static boolean isBoolClassType(Class clazz) {
+        return Boolean.class.equals(clazz);
+    }
+    public static boolean isBoolPrimitiveType(Class clazz) {
+        return clazz != null && clazz.isPrimitive() && "boolean".equals(clazz.getName());
     }
 
     public static boolean isArrayType(Class clazz) {

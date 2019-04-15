@@ -66,30 +66,30 @@ public class PropertiesToBeanConverter implements RequestConverter {
     static final Map<Class<?>, Converter> converters = new HashMap<Class<?>, Converter>();
 
     static {
-        converters.put(Boolean.class, new BooleanConverter());
+        converters.put(Boolean.class, new BooleanConverter(null));
         converters.put(Boolean.TYPE, new BooleanConverter());
-        converters.put(Byte.class, new ByteConverter());
+        converters.put(Byte.class, new ByteConverter(null));
         converters.put(Byte.TYPE, new ByteConverter());
-        converters.put(Character.class, new CharacterConverter());
+        converters.put(Character.class, new CharacterConverter(null));
         converters.put(Character.TYPE, new CharacterConverter());
-        converters.put(Float.class, new FloatConverter());
+        converters.put(Float.class, new FloatConverter(null));
         converters.put(Float.TYPE, new FloatConverter());
-        converters.put(Double.class, new DoubleConverter());
+        converters.put(Double.class, new DoubleConverter(null));
         converters.put(Double.TYPE, new DoubleConverter());
         converters.put(double.class, new DoubleConverter());
-        converters.put(Integer.class, new IntegerConverter());
+        converters.put(Integer.class, new IntegerConverter(null));
         converters.put(Integer.TYPE, new IntegerConverter());
-        converters.put(Long.class, new LongConverter());
+        converters.put(Long.class, new LongConverter(null));
         converters.put(Long.TYPE, new LongConverter());
-        converters.put(Short.class, new ShortConverter());
+        converters.put(Short.class, new ShortConverter(null));
         converters.put(Short.TYPE, new ShortConverter());
         converters.put(Enum.class, new EnumConverter());
         converters.put(String.class, new StringConverter());
-        DateConverter dateConverter = new DateConverter();
+        DateConverter dateConverter = new DateConverter(null);
         dateConverter.setPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         converters.put(Date.class, dateConverter);
-        converters.put(BigInteger.class, new BigIntegerConverter());
-        converters.put(BigDecimal.class, new BigDecimalConverter());
+        converters.put(BigInteger.class, new BigIntegerConverter(null));
+        converters.put(BigDecimal.class, new BigDecimalConverter(null));
         for (Class<?> c : converters.keySet()) {
             ConvertUtils.register(converters.get(c), c);
         }
