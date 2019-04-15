@@ -23,3 +23,5 @@
 jaxygen-api-sample/src/main/webapp/WEB-INF/glassfish-web\.xml
 
 jaxygen-api-sample/nb-configuration\.xml
+
+*.versionsBackup
