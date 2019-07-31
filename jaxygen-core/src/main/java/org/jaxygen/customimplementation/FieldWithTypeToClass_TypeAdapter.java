@@ -30,17 +30,29 @@ import org.jaxygen.exceptions.NoDefinitionOfImplementationException;
  *
  * @author xnet
  */
-public class CustomImplementationTypeAdapter extends TypeAdapter<Object> {
-
-    private static final String IMPLEMENTATION_CLASS = "implementationClass";
-    private static final String DTO = "dto";
+public class FieldWithTypeToClass_TypeAdapter extends TypeAdapter<Object> {
 
     final private TypeAdapter<JsonElement> elementAdapter;
     final private Gson gson;
+    final private String typeFieldName;
+//    final private Enum<? extends TypeToClass> typeToClassResolverClass;
+    final private Entry[] entrys;
 
-    public CustomImplementationTypeAdapter(Gson gson) {
+    public FieldWithTypeToClass_TypeAdapter(Gson gson, ImplementationClassType annotation) {
         this.gson = gson;
         this.elementAdapter = gson.getAdapter(JsonElement.class);
+        this.typeFieldName = annotation.typeFieldName();
+//        this.typeToClassResolverClass = annotation.typeToClassResolver();
+        this.entrys = annotation.typeToClassMap();
+    }
+
+    public Class getByName(String name) {
+        for (Entry entry : entrys) {
+            if (entry.type().equals(name)) {
+                return entry.clazz();
+            }
+        }
+        return null;
     }
 
     //serialize function
@@ -56,16 +68,17 @@ public class CustomImplementationTypeAdapter extends TypeAdapter<Object> {
     public Object read(JsonReader in) throws IOException {
         JsonElement element = elementAdapter.read(in);
         final JsonObject convertable = element.getAsJsonObject();
-        final JsonPrimitive jsonClassName = (JsonPrimitive) convertable.get(IMPLEMENTATION_CLASS);
-        if (jsonClassName == null) {
-            throw new NoDefinitionOfImplementationException("There is no definition of class that will implement interface with annotation 'HasImplementation' in json: " + convertable);
+        final JsonPrimitive typeValue = (JsonPrimitive) convertable.get(typeFieldName);
+        if (typeValue == null) {
+            throw new NoDefinitionOfImplementationException("There is no key '" + typeFieldName + "' in json. Keys are: " + convertable.keySet());
         }
-        final JsonObject jsonDto = convertable.getAsJsonObject(DTO);
+        final String type = typeValue.getAsString();
+//        TypeToClass typeToClassResolver = instantiate(typeToClassResolverClass);
+//        Class implementationClass = typeToClassResolver.getImplementationClass(type);
+        Class implementationClass = getByName(type);
 
-        final String implClassName = jsonClassName.getAsString();
-        final Class implClass = getClassInstance(implClassName);
-        TypeAdapter adapter = gson.getAdapter(implClass);
-        Object ret = adapter.fromJsonTree(jsonDto);
+        TypeAdapter adapter = gson.getAdapter(implementationClass);
+        Object ret = adapter.fromJsonTree(convertable);
         return ret;
     }
 
@@ -77,4 +90,13 @@ public class CustomImplementationTypeAdapter extends TypeAdapter<Object> {
         }
     }
 
+//    public <T> T instantiate(Class<T> clazz) {
+//        try {
+//            T instance = clazz.newInstance();
+//            return instance;
+//        } catch (InstantiationException | IllegalAccessException ex) {
+//            throw new NoDefinitionOfImplementationException("Error in instantiating typeToClassResolver: " + clazz.getCanonicalName(), ex);
+//        }
+//
+//    }
 }

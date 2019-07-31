@@ -28,8 +28,10 @@ import org.jaxygen.annotations.HasImplementation;
  */
 public class CustomTypeAdapterFactory implements TypeAdapterFactory {
 
+    @Override
     public final <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-        if (type.getRawType().isAnnotationPresent(HasImplementation.class)) {
+        if (type.getRawType().isAnnotationPresent(ImplementationClassType.class)
+                || type.getRawType().isAnnotationPresent(HasImplementation.class)) {
             return (TypeAdapter<T>) chooseTypeAdapter(gson, type);
         } else {
             return null;
@@ -38,9 +40,14 @@ public class CustomTypeAdapterFactory implements TypeAdapterFactory {
 
     private TypeAdapter<?> chooseTypeAdapter(Gson gson, TypeToken type) {
         if (type.getRawType().isInterface() || Modifier.isAbstract(type.getRawType().getModifiers())) {
-            return new CustomImplementationTypeAdapter(gson);
-        } else {
-            return gson.getDelegateAdapter(this, type);
+            if (type.getRawType().isAnnotationPresent(ImplementationClassType.class)) {
+                ImplementationClassType annotation = (ImplementationClassType) type.getRawType().getAnnotation(ImplementationClassType.class);
+                return new FieldWithTypeToClass_TypeAdapter(gson, annotation);
+            }
+            if (type.getRawType().isAnnotationPresent(HasImplementation.class)) {
+                return new CustomImplementationTypeAdapter(gson);
+            }
         }
+        return gson.getDelegateAdapter(this, type);
     }
 }

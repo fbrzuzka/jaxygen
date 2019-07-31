@@ -29,6 +29,9 @@ import org.jaxygen.converters.prop2Json.pojos.ImplTestPojo;
 import org.jaxygen.converters.prop2Json.pojos.Sex;
 import org.jaxygen.converters.prop2Json.pojos.TestInterfaceRequest;
 import org.jaxygen.converters.prop2Json.pojos.UserTestPojo;
+import org.jaxygen.converters.prop2Json.pojosFIeldsWithType.FieldWithTypeImplTestPojo_1;
+import org.jaxygen.converters.prop2Json.pojosFIeldsWithType.FieldWithTypeTestInterfaceRequest;
+import org.jaxygen.converters.prop2Json.pojosFIeldsWithType.MyType;
 import org.jaxygen.customimplementation.CustomTypeAdapterFactory;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -208,6 +211,48 @@ public class Prop2JSONConverterTest {
         //when
         String resultJson = Prop2JSONConverter.convertPropertiesToJSON(properties);
         Object resultPojo = Prop2JSONConverter.convertJSONToPojo(resultJson, TestInterfaceRequest.class);
+
+        //then
+        Assertions.assertThat(resultPojo).isEqualToComparingFieldByFieldRecursively(expected);
+    }
+
+    @Test
+    public void testConvertJsonToObj_newWay() {
+        //given
+
+        Map<String, String> properties = new HashMap();
+        properties.put("intField", "12");
+        properties.put("stringField", "sialala");
+        properties.put("interfaceField<impl>org.jaxygen.converters.prop2Json.pojosFIeldsWithType.FieldWithTypeImplTestPojo_1#bar1", "pole z klasy implementującej");
+        properties.put("interfaceField<impl>org.jaxygen.converters.prop2Json.pojosFIeldsWithType.FieldWithTypeImplTestPojo_1#myType", "TYPE_1");
+        properties.put("interfacesListField[0]<impl>org.jaxygen.converters.prop2Json.pojosFIeldsWithType.FieldWithTypeImplTestPojo_1#bar1", "pole w liscie");
+        properties.put("interfacesListField[0]<impl>org.jaxygen.converters.prop2Json.pojosFIeldsWithType.FieldWithTypeImplTestPojo_1#myType", "TYPE_1");
+
+        String given = ""
+                + "{"
+                + "     \"intField\":\"12\","
+                + "     \"stringField\":\"sialala\","
+                + "     \"interfaceField\":{"
+                + "         \"bar1\":\"pole z klasy implementującej\","
+                + "         \"myType\":\"TYPE_1\""
+                + "     },"
+                + "     \"interfacesListField\":["
+                + "         {"
+                + "             \"bar1\":\"pole w liscie\","
+                + "             \"myType\":\"TYPE_1\""
+                + "         }"
+                + "     ]"
+                + "}";
+
+        FieldWithTypeTestInterfaceRequest expected = new FieldWithTypeTestInterfaceRequest();
+        expected.setIntField(12);
+        expected.setStringField("sialala");
+        expected.setInterfaceField(new FieldWithTypeImplTestPojo_1("pole z klasy implementującej", MyType.TYPE_1));
+        expected.getInterfacesListField().add(new FieldWithTypeImplTestPojo_1("pole w liscie", MyType.TYPE_1));
+
+        //when
+//        String resultJson = Prop2JSONConverter.convertPropertiesToJSON(properties);
+        Object resultPojo = Prop2JSONConverter.convertJSONToPojo(given, FieldWithTypeTestInterfaceRequest.class);
 
         //then
         Assertions.assertThat(resultPojo).isEqualToComparingFieldByFieldRecursively(expected);
