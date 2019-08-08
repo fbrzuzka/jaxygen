@@ -17,6 +17,7 @@ package org.jaxygen.customimplementation;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
@@ -58,9 +59,13 @@ public class FieldWithTypeToClass_TypeAdapter extends TypeAdapter<Object> {
     //serialize function
     @Override
     public void write(JsonWriter out, Object value) throws IOException {
-        TypeAdapter adapter = gson.getAdapter(value.getClass());
-        JsonElement ret = adapter.toJsonTree(value);
-        elementAdapter.write(out, ret);
+        if (value == null) {
+            elementAdapter.write(out, JsonNull.INSTANCE);
+        } else {
+            TypeAdapter adapter = gson.getAdapter(value.getClass());
+            JsonElement ret = adapter.toJsonTree(value);
+            elementAdapter.write(out, ret);
+        }
     }
 
     //deserialize function
