@@ -3,8 +3,6 @@ package org.jaxygen.util;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.jaxygen.annotations.BeanTransient;
@@ -37,8 +35,8 @@ public class BeanUtil {
                             if (wd.getPropertyType().isAssignableFrom(pd.getPropertyType())) {
                                 Object copyVal = PropertyUtils.getProperty(from, pd.getName());
                                 PropertyUtils.setProperty(to, wd.getName(), copyVal);
-                            } else {
-                                Logger.getLogger(BeanUtil.class.getCanonicalName()).log(Level.WARNING, "Method {0}.{1} of type {2} is not compatible to {3}.{4} of type{5}", new Object[]{from.getClass().getName(), pd.getName(), pd.getPropertyType(), to.getClass().getName(), wd.getName(), wd.getPropertyType()});
+//                            } else {
+                                //    Logger.getLogger(BeanUtil.class.getCanonicalName()).log(Level.WARNING, "Method {0}.{1} of type {2} is not compatible to {3}.{4} of type{5}", new Object[]{from.getClass().getName(), pd.getName(), pd.getPropertyType(), to.getClass().getName(), wd.getName(), wd.getPropertyType()});
                             }
                         } catch (IllegalAccessException ex) {
                             throw new java.lang.IllegalArgumentException("Could not translate bean", ex);
